@@ -55,15 +55,26 @@ window.addEventListener('keyup', e => {
 const handleMouseDown = (e) => {
     const allLetters = document.querySelectorAll('.letter');
     if (e.target.classList.contains('letter')) {
-        if (!isCtrlPress) {
+        if (!isCtrlPress && draggedElements.length < 1) {
             allLetters.forEach(l => l.classList.remove('dragging'));
             draggedElements = [];
         };
         e.target.classList.toggle('dragging');
+
+        let translateX = 0;
+        let translateY = 0;
+
+        if (e.target.hasAttribute('style')) { 
+            const translate = e.target.getAttribute('style').match(/\d+/g);
+            translateX = Number(translate[0]);
+            translateY = Number(translate[1]);
+        };
         const drEl = {
             el: e.target,
             startSelectionX: e.clientX,
-            startSelectionY: e.clientY
+            startSelectionY: e.clientY,
+            translateX: translateX,
+            translateY: translateY
         };
         draggedElements.push(drEl);
         isMouseDown = true;
@@ -73,8 +84,8 @@ const handleMouseDown = (e) => {
 const handleMouseMove = (e) => {
     if (isMouseDown && draggedElements.length > 0 && !isCtrlPress) {
         draggedElements.forEach(elem => {
-            const deltaX = e.clientX - elem.startSelectionX;
-            const deltaY = e.clientY - elem.startSelectionY;
+            const deltaX = e.clientX + (e.clientX - elem.startSelectionX) + elem.translateX - elem.startSelectionX;
+            const deltaY = e.clientY + (e.clientY - elem.startSelectionY) + elem.translateY - elem.startSelectionY;
             elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
         });
     };
