@@ -3,10 +3,12 @@ const secInp = document.querySelector('.secondInput');
 const button = document.querySelector('.button');
 const text = document.querySelector('.text');
 
-let isMouseDown = false;
+let isCtrlPress = false;
 let startSelectionX = 0;
 let startSelectionY = 0;
-let draggedElement = null;
+let draggedElements = [];
+let isMouseDown = false;
+
 
 const reorgStr = (str) => {
     const arrLetters = str.split("").map(l => `<span class="letter">${l}</span>`);
@@ -36,47 +38,60 @@ const handelBut = () => {
 };
 
 button.addEventListener('click', handelBut);
-window.addEventListener('keypress', e => { 
+window.addEventListener('keydown', e => { 
     if (e.key === 'Enter') {
         handelBut();
+    };
+    if (e.key === 'Ctrl' || e.key === 'Meta') {
+        isCtrlPress = true;
+    };
+});
+window.addEventListener('keyup', e => {
+    if (e.key === 'Ctrl' || e.key === 'Meta') {
+        isCtrlPress = false;
     };
 });
 
 const handleMouseDown = (e) => {
-    if (event.target.classList.contains('letter')) {
+    const allLetters = document.querySelectorAll('.letter');
+    if (e.target.classList.contains('letter')) {
+        if (!isCtrlPress) {
+            allLetters.forEach(l => l.classList.remove('dragging'));
+            draggedElements = [];
+        };
+        e.target.classList.toggle('dragging');
+        const drEl = {
+            el: e.target,
+            startSelectionX: e.clientX,
+            startSelectionY: e.clientY
+        };
+        draggedElements.push(drEl);
         isMouseDown = true;
-        draggedElement = e.target;
-        startSelectionX = e.clientX;
-        startSelectionY = e.clientY;
-        draggedElement.classList.add('dragging');
-    }
-};
-
-const handleMouseUp = (e) => {
-    if (isMouseDown && draggedElement) {
-        isMouseDown = false;
-        draggedElement.classList.remove('dragging');
-        draggedElement.style.transform = '';
-        const elementsUnderCursor = document.elementsFromPoint(e.clientX, e.clientY);
-        const dropTarget = elementsUnderCursor.find(element => element !== draggedElement && element.classList.contains('letter'));
-        if (dropTarget) {
-            text.insertBefore(draggedElement, dropTarget);
-        } else {
-            text.appendChild(draggedElement);
-        }
-        draggedElement = null;
-    }
+    };
 };
 
 const handleMouseMove = (e) => {
-    if (isMouseDown && draggedElement) {
-        const deltaX = e.clientX - startSelectionX;
-        const deltaY = e.clientY - startSelectionY;
-        const rect = draggedElement.getBoundingClientRect();
-        draggedElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-    }
+    if (isMouseDown && draggedElements.length > 0 && !isCtrlPress) {
+        draggedElements.forEach(elem => {
+            const deltaX = e.clientX - elem.startSelectionX;
+            const deltaY = e.clientY - elem.startSelectionY;
+            elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+        });
+    };
+};
+
+const handleMouseUp = () => {
+    if (!isCtrlPress) { 
+        const allLetters = document.querySelectorAll('.letter');
+    if (allLetters.length > 0) { 
+        allLetters.forEach(l => l.classList.remove('dragging'));
+        draggedElements = [];
+    };
+    isMouseDown = false;
+    };
 };
 
 text.addEventListener('mousedown', handleMouseDown);
 text.addEventListener('mousemove', handleMouseMove);
 text.addEventListener('mouseup', handleMouseUp);
+

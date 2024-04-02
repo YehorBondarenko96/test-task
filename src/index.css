@@ -42,8 +42,21 @@ button{
 .text{
     width: 100%;
     font-size: 24px;
+    user-select: none;
+    position: relative;
 }
 
-.dragging{
+.letter {
+    display: inline-block;
+    transition: color 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.selected {
+    background-color: yellow;
+}
+
+.dragging {
+    cursor: move;
     color: red;
 }
