@@ -149,14 +149,16 @@ const handleMouseMove = (e) => {
     };
 };
 
-const handleMouseUp = () => {
+const handleMouseUp = (e) => {
     if (!isCtrlPress) { 
         const allLetters = document.querySelectorAll('.letter');
     if (allLetters.length > 0) { 
         allLetters.forEach(l => l.classList.remove('dragging'));
         draggedElements = [];
         };
-        rendNewSpan();
+        if (e.target.classList.contains('letter')) {
+            rendNewSpan();
+        };
     };
     isMouseDown = false;
     selectedElements.forEach(elem => {
