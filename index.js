@@ -142,7 +142,7 @@ const handleMouseMove = (e) => {
     if (isMouseDown && selectedElements.length > 0 && !isCtrlPress) {
         selectedElements.forEach(elem => {
             const deltaX = e.clientX - elem.relDispX + elem.translateX - elem.startSelectionX;
-            const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY;
+            const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY + 30;
             elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             elem.el.style.pointerEvents = 'none';
         });
