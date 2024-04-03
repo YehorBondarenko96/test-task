@@ -98,18 +98,20 @@ const handleMouseDown = (e) => {
                 translateX = Number(translate[0]);
                 translateY = Number(translate[1]);
             };
-
+console.log(e.target.offsetTop);
             const drEl = {
-            el: e.target,
-            startSelectionX: e.clientX,
-            startSelectionY: e.clientY,
-            translateX: translateX,
-            translateY: translateY
+                el: e.target,
+                startSelectionX: e.clientX,
+                startSelectionY: e.clientY,
+                translateX: translateX,
+                translateY: translateY,
+                top: e.target.offsetTop,
+                left: e.target.offsetLeft
             };
 
             draggedElements.push(drEl);
-            draggedElements.sort((a, b) => a.startSelectionY - b.startSelectionY);
-            draggedElements.sort((a, b) => a.startSelectionX - b.startSelectionX);
+            draggedElements.sort((a, b) => b.left - a.left);
+            draggedElements.sort((a, b) => b.top - a.top);
         };
         
         isMouseDown = true;
@@ -176,9 +178,13 @@ const rendNewSpan = () => {
         const span = document.createElement('span');
         span.setAttribute('id', `${Math.floor(Math.random() * 1000000000000)}`);
         span.classList.add('letter');
+        span.classList.add('selected');
         span.innerHTML = l === ' ' ? g : l;
         span.addEventListener('mouseover', handelHoverSpan);
-        console.log(actSp);
+        actSp.after(span);
+        const idOldEl = elem.el.id;
+        const oldEl = document.getElementById(`${idOldEl}`);
+        oldEl.remove();
     });
 };
 
