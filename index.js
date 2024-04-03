@@ -15,7 +15,7 @@ const reorgStr = (id, str) => {
     const pText = document.getElementById(`${id}`);
     const g = '&nbsp;';
     const arrLetters = str.split("");
-    const reorgArrLet = arrLetters.map(l => {
+    arrLetters.forEach(l => {
         const span = document.createElement('span');
         span.classList.add('letter');
         span.innerHTML = l === ' ' ? g : l;
@@ -87,7 +87,7 @@ const handleMouseDown = (e) => {
             };
         } else {
             e.target.classList.toggle('dragging');
-            e.target.classList.toggle('selected');
+            e.target.classList.add('selected');
             let translateX = 0;
             let translateY = 0;
 
