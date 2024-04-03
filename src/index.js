@@ -7,6 +7,7 @@ let isCtrlPress = false;
 let startSelectionX = 0;
 let startSelectionY = 0;
 let draggedElements = [];
+let selectedElements = [];
 let isMouseDown = false;
 
 
@@ -61,13 +62,19 @@ const handleMouseDown = (e) => {
     if (e.target.classList.contains('letter')) {
         if (!isCtrlPress && draggedElements.length < 1) {
             allLetters.forEach(l => l.classList.remove('dragging'));
-            draggedElements = [];
+            allLetters.forEach(l => l.classList.remove('selected'));
+            selectedElements = [];
         };
-        e.target.classList.toggle('dragging');
         
         if (draggedElements.find(elem => elem.el === e.target)) {
-        draggedElements = draggedElements.filter(elem => elem.el !== e.target);
+            if (isCtrlPress) {
+                e.target.classList.toggle('dragging');
+                e.target.classList.toggle('selected');
+                draggedElements = draggedElements.filter(elem => elem.el !== e.target);
+            };
         } else {
+            e.target.classList.toggle('dragging');
+            e.target.classList.toggle('selected');
             let translateX = 0;
             let translateY = 0;
 
@@ -93,12 +100,28 @@ const handleMouseDown = (e) => {
             elem.relDispX = e.clientX - elem.startSelectionX;
             elem.relDispY = e.clientY - elem.startSelectionY;
         });
+
+        selectedElements = [...draggedElements];
+
+    const allSelLet = Array.from(document.querySelectorAll('.selected'));
+
+        if (allSelLet.length > 0) {
+            const noDrSelEl = allSelLet.filter(elem => !elem.classList.contains('dragging'));
+            
+            noDrSelEl.forEach(l => l.classList.remove('selected'));
+        };
+
+    } else {
+        allLetters.forEach(l => l.classList.remove('dragging'));
+        allLetters.forEach(l => l.classList.remove('selected'));
+        draggedElements = [];
+        selectedElements = [];
     };
 };
 
 const handleMouseMove = (e) => {
-    if (isMouseDown && draggedElements.length > 0 && !isCtrlPress) {
-        draggedElements.forEach(elem => {
+    if (isMouseDown && selectedElements.length > 0 && !isCtrlPress) {
+        selectedElements.forEach(elem => {
             const deltaX = e.clientX - elem.relDispX + elem.translateX - elem.startSelectionX;
             const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY;
             elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
@@ -111,10 +134,12 @@ const handleMouseUp = () => {
         const allLetters = document.querySelectorAll('.letter');
     if (allLetters.length > 0) { 
         allLetters.forEach(l => l.classList.remove('dragging'));
+        // allLetters.forEach(l => l.classList.remove('selected'));
         draggedElements = [];
     };
-    isMouseDown = false;
     };
+    isMouseDown = false;
+    selectedElements = [];
 };
 
 text.addEventListener('mousedown', handleMouseDown);
