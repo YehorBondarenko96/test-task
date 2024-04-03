@@ -9,6 +9,7 @@ let startSelectionY = 0;
 let draggedElements = [];
 let selectedElements = [];
 let isMouseDown = false;
+let lastActSp = null;
 
 
 const reorgStr = (id, str) => {
@@ -17,6 +18,7 @@ const reorgStr = (id, str) => {
     const arrLetters = str.split("");
     arrLetters.forEach(l => {
         const span = document.createElement('span');
+        span.setAttribute('id', `${Math.floor(Math.random() * 1000000000000)}`);
         span.classList.add('letter');
         span.innerHTML = l === ' ' ? g : l;
         span.addEventListener('mouseover', handelHoverSpan);
@@ -105,7 +107,9 @@ const handleMouseDown = (e) => {
             translateY: translateY
             };
 
-            draggedElements.push(drEl)
+            draggedElements.push(drEl);
+            draggedElements.sort((a, b) => a.startSelectionY - b.startSelectionY);
+            draggedElements.sort((a, b) => a.startSelectionX - b.startSelectionX);
         };
         
         isMouseDown = true;
@@ -138,6 +142,7 @@ const handleMouseMove = (e) => {
             const deltaX = e.clientX - elem.relDispX + elem.translateX - elem.startSelectionX;
             const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY;
             elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            elem.el.style.pointerEvents = 'none';
         });
     };
 };
@@ -148,14 +153,33 @@ const handleMouseUp = () => {
     if (allLetters.length > 0) { 
         allLetters.forEach(l => l.classList.remove('dragging'));
         draggedElements = [];
-    };
+        };
+        rendNewSpan();
     };
     isMouseDown = false;
+    selectedElements.forEach(elem => {
+        elem.el.style.pointerEvents = 'auto';
+    });
     selectedElements = [];
 };
 
-const handelHoverSpan = () => {
-    console.log(1);
+const handelHoverSpan = (e) => {
+    lastActSp = e.target;
+};
+
+const rendNewSpan = () => {
+    const idActSp = lastActSp.getAttribute('id');
+    const actSp = document.getElementById(`${idActSp}`);
+    selectedElements.forEach(elem => {
+        const l = elem.el.textContent;
+        const g = '&nbsp;';
+        const span = document.createElement('span');
+        span.setAttribute('id', `${Math.floor(Math.random() * 1000000000000)}`);
+        span.classList.add('letter');
+        span.innerHTML = l === ' ' ? g : l;
+        span.addEventListener('mouseover', handelHoverSpan);
+        console.log(actSp);
+    });
 };
 
 text.addEventListener('mousedown', handleMouseDown);
