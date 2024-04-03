@@ -64,25 +64,30 @@ const handleMouseDown = (e) => {
             draggedElements = [];
         };
         e.target.classList.toggle('dragging');
+        
+        if (draggedElements.find(elem => elem.el === e.target)) {
+        draggedElements = draggedElements.filter(elem => elem.el !== e.target);
+        } else {
+            let translateX = 0;
+            let translateY = 0;
 
-        let translateX = 0;
-        let translateY = 0;
+            if (e.target.hasAttribute('style')) { 
+                const translate = e.target.getAttribute('style').match(/-?\d+/g);
+                translateX = Number(translate[0]);
+                translateY = Number(translate[1]);
+            };
 
-        if (e.target.hasAttribute('style')) { 
-            const translate = e.target.getAttribute('style').match(/-?\d+/g);
-            console.log(e.target.getAttribute('style'));
-            console.log('translate: ', translate);
-            translateX = Number(translate[0]);
-            translateY = Number(translate[1]);
-        };
-        const drEl = {
+            const drEl = {
             el: e.target,
             startSelectionX: e.clientX,
             startSelectionY: e.clientY,
             translateX: translateX,
             translateY: translateY
+            };
+
+            draggedElements.push(drEl)
         };
-        draggedElements.push(drEl);
+        
         isMouseDown = true;
         draggedElements.forEach(elem => {
             elem.relDispX = e.clientX - elem.startSelectionX;
@@ -95,11 +100,6 @@ const handleMouseMove = (e) => {
     if (isMouseDown && draggedElements.length > 0 && !isCtrlPress) {
         draggedElements.forEach(elem => {
             const deltaX = e.clientX - elem.relDispX + elem.translateX - elem.startSelectionX;
-            console.log('deltaX: ', deltaX);
-            console.log('e.clientX: ', e.clientX);
-            console.log('elem.relDispX: ', elem.relDispX);
-            console.log('elem.translateX: ', elem.translateX);
-            console.log('elem.startSelectionX: ', elem.startSelectionX);
             const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY;
             elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
         });
