@@ -11,23 +11,17 @@ let selectedElements = [];
 let isMouseDown = false;
 
 
-const reorgStr = (str) => {
-    const pText = document.querySelector('.pText');
+const reorgStr = (id, str) => {
+    const pText = document.getElementById(`${id}`);
     const g = '&nbsp;';
     const arrLetters = str.split("");
     const reorgArrLet = arrLetters.map(l => {
         const span = document.createElement('span');
         span.classList.add('letter');
         span.innerHTML = l === ' ' ? g : l;
-        span.addEventListener('mouseover', () => {
-            console.log('Курсор наведено на <span>!');
-        });
-        console.log(1);
+        span.addEventListener('mouseover', handelHoverSpan);
         pText.appendChild(span);
-        // return span.outerHTML;
     });
-    // return
-    // reorgArrLet.join('');
 };
 
 
@@ -35,23 +29,27 @@ const handelBut = () => {
     const fInpVal = firInp.value.trim();
     const sInpVal = secInp.value.trim();
     const id = Math.floor(Math.random()*1000000000);
-    console.log('id: ', id);
     if (fInpVal !== '' || sInpVal !== '') {
         let newText = null;
         if (fInpVal === '') {
-            newText = document.createElement('p');
-            newText.innerHTML = `<p class="pText"><b>Second Input:</b> </p>`
-            // newText = `<p><b>Second Input:</b> ${reorgStr(sInpVal)}</p>`;
+            newText = document.createElement('div');
+            newText.innerHTML = `<p id=${id}><b>Second Input:</b> </p>`;
+            text.appendChild(newText);
+            reorgStr(id, sInpVal);
         } else if (sInpVal === '') {
-            // newText = `<b>First Input:</b> ${reorgStr(document.createElement('p'), fInpVal)}`;
-            
+            newText = document.createElement('div');
+            newText.innerHTML = `<p id=${id}><b>First Input:</b> </p>`;
+            text.appendChild(newText);
+            reorgStr(id, fInpVal);
         } else {
-            newText = `
-            <p><b>First Input:</b> ${reorgStr(fInpVal)}</p>
-            <p><b>Second Input:</b> ${reorgStr(sInpVal)}</p>`;
-        }
-        text.appendChild(newText);
-        reorgStr(sInpVal);
+            newText = document.createElement('div');
+            newText.innerHTML = `
+            <p id=${id}><b>First Input:</b> </p>
+            <p id=${id + 1234567}><b>Second Input:</b> </p>`;
+            text.appendChild(newText);
+            reorgStr(id, fInpVal);
+            reorgStr(id + 1234567, sInpVal);
+        };
     };
     firInp.value = '';
     secInp.value = '';
@@ -154,6 +152,10 @@ const handleMouseUp = () => {
     };
     isMouseDown = false;
     selectedElements = [];
+};
+
+const handelHoverSpan = () => {
+    console.log(1);
 };
 
 text.addEventListener('mousedown', handleMouseDown);
