@@ -6,7 +6,8 @@ const text = document.querySelector('.text');
 let isCtrlPress = false;
 let startSelectionX = 0;
 let startSelectionY = 0;
-let draggedElements = [];
+let firstDraggedElements = [];
+let secondDraggedElements = [];
 let selectedElements = [];
 let isMouseDown = false;
 let lastActSp = null;
@@ -42,6 +43,8 @@ const handelBut = () => {
             newText = document.createElement('div');
             newText.innerHTML = `<p id=${id}><b>Second Input:</b> </p>`;
             text.appendChild(newText);
+            // reorgStr(id, sInpVal);
+
             reorgStr(id, sInpVal);
         } else if (sInpVal === '') {
             newText = document.createElement('div');
@@ -81,30 +84,35 @@ const handleMouseDown = (e) => {
     isMouseDown = true;
     const allLetters = document.querySelectorAll('.letter');
     if (e.target.classList.contains('letter')) {
-        if (!isCtrlPress && draggedElements.length < 1) {
+        if (!isCtrlPress && firstDraggedElements.length < 1 && secondDraggedElements.length < 1) {
             allLetters.forEach(l => l.classList.remove('dragging'));
             allLetters.forEach(l => l.classList.remove('selected'));
-            selectedElements = [];
         };
         
-        if (draggedElements.find(elem => elem.el === e.target)) {
+        if (firstDraggedElements.find(elem => elem.el === e.target) ||
+            secondDraggedElements.find(elem => elem.el === e.target)) {
             if (isCtrlPress) {
                 e.target.classList.toggle('dragging');
                 e.target.classList.toggle('selected');
-                draggedElements = draggedElements.filter(elem => elem.el !== e.target);
+                firstDraggedElements = firstDraggedElements.filter(elem => elem.el !== e.target);
+                secondDraggedElements = secondDraggedElements.filter(elem => elem.el !== e.target);
             };
         } else {
             e.target.classList.toggle('dragging');
             e.target.classList.add('selected');
-            addNewEl(e.target);
+            addNewEl(e.target, firstDraggedElements);
         };
         
-        draggedElements.forEach(elem => {
+        firstDraggedElements.forEach(elem => {
+            elem.relDispX = e.clientX - elem.startSelectionX;
+            elem.relDispY = e.clientY - elem.startSelectionY;
+        });
+        secondDraggedElements.forEach(elem => {
             elem.relDispX = e.clientX - elem.startSelectionX;
             elem.relDispY = e.clientY - elem.startSelectionY;
         });
 
-        selectedElements = [...draggedElements];
+        selectedElements = [...firstDraggedElements, ...secondDraggedElements];
 
     const allSelLet = Array.from(document.querySelectorAll('.selected'));
 
@@ -118,7 +126,7 @@ const handleMouseDown = (e) => {
         if (!isCtrlPress) {
             allLetters.forEach(l => l.classList.remove('dragging'));
         allLetters.forEach(l => l.classList.remove('selected'));
-        draggedElements = [];
+        firstDraggedElements = [];
         selectedElements = [];
         };
         finishedSelect = false;
@@ -157,24 +165,23 @@ const handleMouseMove = (e) => {
                 (leftElem <= startSelAreaX && leftElem >= finishSelAreaX &&
                     topElem <= startSelAreaY && topElem >= finishSelAreaY)
             ) {
-                if (!selectedElements.find(el => el.el === elem)) {
+                if (!secondDraggedElements.find(el => el.el === elem)) {
                     elem.classList.add('selected');
                     elem.classList.add('dragging');
-                    addNewEl(elem);
-            draggedElements.forEach(elem => {
+                    addNewEl(elem, secondDraggedElements);
+            secondDraggedElements.forEach(elem => {
             elem.relDispX = leftElem - elem.startSelectionX;
             elem.relDispY = topElem - elem.startSelectionY;
             });
                 };
             } else {
-                if (!isCtrlPress) {
+                if (!firstDraggedElements.some(el => el.el === elem)) {
                     elem.classList.remove('selected');
                     elem.classList.remove('dragging');
-                    draggedElements = draggedElements.filter(el => el.el !== elem);
+                    secondDraggedElements = secondDraggedElements.filter(el => el.el !== elem);
                 }
             };
-        selectedElements = [...draggedElements];
-            
+        selectedElements = [...firstDraggedElements, ...secondDraggedElements];
         });
     };
 };
@@ -184,9 +191,20 @@ const handleMouseUp = (e) => {
         const allLetters = document.querySelectorAll('.letter');
     if (allLetters.length > 0) { 
         allLetters.forEach(l => l.classList.remove('dragging'));
-        draggedElements = [];
+        firstDraggedElements = [];
+        secondDraggedElements = [];
         };
         if (e.target.classList.contains('letter')) {
+
+            selectedElements = selectedElements.reduce((arr, elem) => {
+                if (arr.length === 0) {
+                    return [elem]
+                } else if (arr.length > 0 && !arr.some(el => el.el === elem.el)) {
+                    return [...arr, elem]
+                } else {
+                    return [...arr]
+                }
+            }, []);
             rendNewSpan();
         };
     };
@@ -212,6 +230,15 @@ const rendNewSpan = () => {
         span.setAttribute('id', `${Math.floor(Math.random() * 1000000000000)}`);
         span.classList.add('letter');
         span.classList.add('selected');
+        if (actSp.hasAttribute('style')) {
+            const translate = actSp.getAttribute('style').match(/-?\d+/g);
+            if (translate && translate.length > 0) {
+                const translateX = Number(translate[0]);
+                const translateY = Number(translate[1]);
+                span.style.transform = `translate(${translateX}px, ${translateY}px)`;
+            };
+        };
+
         span.innerHTML = l === ' ' ? g : l;
         span.addEventListener('mouseover', handelHoverSpan);
         actSp.after(span);
@@ -221,7 +248,7 @@ const rendNewSpan = () => {
     });
 };
 
-const addNewEl = (elem) => {
+const addNewEl = (elem, draggedElements) => {
     if (elem.classList.contains('letter')) {
         let translateX = 0;
         let translateY = 0;
