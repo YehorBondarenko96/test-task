@@ -115,10 +115,12 @@ const handleMouseDown = (e) => {
         };
 
     } else {
-        allLetters.forEach(l => l.classList.remove('dragging'));
+        if (!isCtrlPress) {
+            allLetters.forEach(l => l.classList.remove('dragging'));
         allLetters.forEach(l => l.classList.remove('selected'));
         draggedElements = [];
         selectedElements = [];
+        };
         finishedSelect = false;
     };
     startSelAreaX = e.clientX;
@@ -139,6 +141,7 @@ const handleMouseMove = (e) => {
     if (isMouseDown && !finishedSelect) { 
         finishSelAreaX = e.clientX;
         finishSelAreaY = e.clientY;
+        console.log('finishSelAreaY: ', finishSelAreaY);
 
         const allLetters = document.querySelectorAll('.letter');
         allLetters.forEach(elem => {
@@ -218,33 +221,35 @@ const rendNewSpan = () => {
 };
 
 const addNewEl = (elem) => {
-    let translateX = 0;
-    let translateY = 0;
+    if (elem.classList.contains('letter')) {
+        let translateX = 0;
+        let translateY = 0;
     
-    const posElem = elem.getBoundingClientRect();
-            const leftElem = posElem.left;
-            const topElem = posElem.top;
+        const posElem = elem.getBoundingClientRect();
+        const leftElem = posElem.left;
+        const topElem = posElem.top;
 
-            if (elem.hasAttribute('style')) { 
-                const translate = elem.getAttribute('style').match(/-?\d+/g);
-                if (translate && translate.length > 0) {
-                    translateX = Number(translate[0]);
-                    translateY = Number(translate[1]);
-                };
+        if (elem.hasAttribute('style')) {
+            const translate = elem.getAttribute('style').match(/-?\d+/g);
+            if (translate && translate.length > 0) {
+                translateX = Number(translate[0]);
+                translateY = Number(translate[1]);
             };
-            const drEl = {
-                el: elem,
-                startSelectionX: leftElem,
-                startSelectionY: topElem,
-                translateX: translateX,
-                translateY: translateY,
-                top: elem.offsetTop,
-                left: elem.offsetLeft
-            };
+        };
+        const drEl = {
+            el: elem,
+            startSelectionX: leftElem,
+            startSelectionY: topElem,
+            translateX: translateX,
+            translateY: translateY,
+            top: elem.offsetTop,
+            left: elem.offsetLeft
+        };
 
-            draggedElements.push(drEl);
-            draggedElements.sort((a, b) => b.left - a.left);
-            draggedElements.sort((a, b) => b.top - a.top);
+        draggedElements.push(drEl);
+        draggedElements.sort((a, b) => b.left - a.left);
+        draggedElements.sort((a, b) => b.top - a.top);
+    }
 };
 
 window.addEventListener('mousedown', handleMouseDown);
