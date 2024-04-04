@@ -14,21 +14,23 @@ body{
     height: 100%;
     display: flex;
     justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    font-size: 24px;
+    user-select: none;
+    gap: 50px;
+    margin: 20px 0;
 }
 
 p{ 
     margin: 0;
 }
 
-form{
+/* form{
     width: calc(100% - 100px);
     margin: 20px 0;
     display: flex;
     align-items: center;
     gap: calc(100%/50);
-}
+} */
 
 input{
     border-radius: 10px;
@@ -36,7 +38,8 @@ input{
     height: 30px;
     font-size: 14px;
     padding: 0 10px;
-    width: calc((100% - 100%/7 - 150px)/2);
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 input::placeholder{
@@ -45,24 +48,22 @@ input::placeholder{
 
 button{
     border-radius: 10px;
-    height: 35px;
-    width: 150px;
+    height: 32px;
+    width: 100%;
     font-size: 18px;
     border-color: transparent;
     background-color: #3b486e;
     color: #fff;
 }
 
+
+
 .text{
-    width: calc(100% - 100px);
-    font-size: 24px;
-    user-select: none;
-    display: flex;
-    gap: calc(100%/50 + 25px);
+    width: calc((100% - 150px)/2.5);
 }
 
-.sec-text-div{
-    width: calc((100% - 100%/7 - 150px)/2);
+.button-div{
+    width: 150px;
 }
 
 .one-of-the-text{
@@ -71,6 +72,7 @@ button{
     border-radius: 10px;
     width: 100%;
     min-height: 30px;
+    margin-top: 20px;
 }
 
 .letter {
