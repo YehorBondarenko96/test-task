@@ -10,6 +10,11 @@ let draggedElements = [];
 let selectedElements = [];
 let isMouseDown = false;
 let lastActSp = null;
+let startSelAreaX = 0;
+let startSelAreaY = 0;
+let finishSelAreaX = 0;
+let finishSelAreaY = 0;
+let finishedSelect = false;
 
 
 const reorgStr = (id, str) => {
@@ -73,6 +78,7 @@ window.addEventListener('keyup', e => {
 });
 
 const handleMouseDown = (e) => {
+    isMouseDown = true;
     const allLetters = document.querySelectorAll('.letter');
     if (e.target.classList.contains('letter')) {
         if (!isCtrlPress && draggedElements.length < 1) {
@@ -90,31 +96,9 @@ const handleMouseDown = (e) => {
         } else {
             e.target.classList.toggle('dragging');
             e.target.classList.add('selected');
-            let translateX = 0;
-            let translateY = 0;
-
-            if (e.target.hasAttribute('style')) { 
-                const translate = e.target.getAttribute('style').match(/-?\d+/g);
-                translateX = Number(translate[0]);
-                translateY = Number(translate[1]);
-            };
-console.log(e.target.offsetTop);
-            const drEl = {
-                el: e.target,
-                startSelectionX: e.clientX,
-                startSelectionY: e.clientY,
-                translateX: translateX,
-                translateY: translateY,
-                top: e.target.offsetTop,
-                left: e.target.offsetLeft
-            };
-
-            draggedElements.push(drEl);
-            draggedElements.sort((a, b) => b.left - a.left);
-            draggedElements.sort((a, b) => b.top - a.top);
+            addNewEl(e.target);
         };
         
-        isMouseDown = true;
         draggedElements.forEach(elem => {
             elem.relDispX = e.clientX - elem.startSelectionX;
             elem.relDispY = e.clientY - elem.startSelectionY;
@@ -135,11 +119,15 @@ console.log(e.target.offsetTop);
         allLetters.forEach(l => l.classList.remove('selected'));
         draggedElements = [];
         selectedElements = [];
+        finishedSelect = false;
     };
+    startSelAreaX = e.clientX;
+    startSelAreaY = e.clientY;
+    
 };
 
 const handleMouseMove = (e) => {
-    if (isMouseDown && selectedElements.length > 0 && !isCtrlPress) {
+    if (isMouseDown && selectedElements.length > 0 && !isCtrlPress && finishedSelect) {
         selectedElements.forEach(elem => {
             const deltaX = e.clientX - elem.relDispX + elem.translateX - elem.startSelectionX;
             const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY + 20;
@@ -147,10 +135,48 @@ const handleMouseMove = (e) => {
             elem.el.style.pointerEvents = 'none';
         });
     };
+
+    if (isMouseDown && !finishedSelect) { 
+        finishSelAreaX = e.clientX;
+        finishSelAreaY = e.clientY;
+
+        const allLetters = document.querySelectorAll('.letter');
+        allLetters.forEach(elem => {
+            const posElem = elem.getBoundingClientRect();
+            const leftElem = posElem.left;
+            const topElem = posElem.top;
+            if (
+                (leftElem >= startSelAreaX && leftElem <= finishSelAreaX &&
+                    topElem >= startSelAreaY && topElem <= finishSelAreaY) ||
+                (leftElem <= startSelAreaX && leftElem >= finishSelAreaX &&
+                    topElem >= startSelAreaY && topElem <= finishSelAreaY) ||
+                (leftElem >= startSelAreaX && leftElem <= finishSelAreaX &&
+                    topElem <= startSelAreaY && topElem >= finishSelAreaY) ||
+                (leftElem <= startSelAreaX && leftElem >= finishSelAreaX &&
+                    topElem <= startSelAreaY && topElem >= finishSelAreaY)
+            ) {
+                if (!selectedElements.find(el => el.el === elem)) {
+                    elem.classList.add('selected');
+                    elem.classList.add('dragging');
+                    addNewEl(elem);
+            draggedElements.forEach(elem => {
+            elem.relDispX = leftElem - elem.startSelectionX;
+            elem.relDispY = topElem - elem.startSelectionY;
+            });
+                };
+            } else {
+                elem.classList.remove('selected');
+                elem.classList.remove('dragging');
+                draggedElements = draggedElements.filter(el => el.el !== elem);
+            };
+        selectedElements = [...draggedElements];
+            
+        });
+    };
 };
 
 const handleMouseUp = (e) => {
-    if (!isCtrlPress) { 
+    if (!isCtrlPress && finishedSelect) { 
         const allLetters = document.querySelectorAll('.letter');
     if (allLetters.length > 0) { 
         allLetters.forEach(l => l.classList.remove('dragging'));
@@ -161,6 +187,7 @@ const handleMouseUp = (e) => {
         };
     };
     isMouseDown = false;
+    finishedSelect = true;
     selectedElements.forEach(elem => {
         elem.el.style.pointerEvents = 'auto';
     });
@@ -190,7 +217,37 @@ const rendNewSpan = () => {
     });
 };
 
-text.addEventListener('mousedown', handleMouseDown);
-text.addEventListener('mousemove', handleMouseMove);
-text.addEventListener('mouseup', handleMouseUp);
+const addNewEl = (elem) => {
+    let translateX = 0;
+    let translateY = 0;
+    
+    const posElem = elem.getBoundingClientRect();
+            const leftElem = posElem.left;
+            const topElem = posElem.top;
+
+            if (elem.hasAttribute('style')) { 
+                const translate = elem.getAttribute('style').match(/-?\d+/g);
+                if (translate && translate.length > 0) {
+                    translateX = Number(translate[0]);
+                    translateY = Number(translate[1]);
+                };
+            };
+            const drEl = {
+                el: elem,
+                startSelectionX: leftElem,
+                startSelectionY: topElem,
+                translateX: translateX,
+                translateY: translateY,
+                top: elem.offsetTop,
+                left: elem.offsetLeft
+            };
+
+            draggedElements.push(drEl);
+            draggedElements.sort((a, b) => b.left - a.left);
+            draggedElements.sort((a, b) => b.top - a.top);
+};
+
+window.addEventListener('mousedown', handleMouseDown);
+window.addEventListener('mousemove', handleMouseMove);
+window.addEventListener('mouseup', handleMouseUp);
 
