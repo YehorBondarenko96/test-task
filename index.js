@@ -32,32 +32,46 @@ const reorgStr = (id, str) => {
     });
 };
 
+const rendTitleText = (id, str) => {
+    const bText = document.getElementById(`${id}`);
+    const span = document.createElement('span');
+    span.setAttribute('id', `${Math.floor(Math.random() * 1000000000000)}`);
+    span.classList.add('bold');
+    span.innerHTML = `${str}`;
+    span.addEventListener('mouseover', handelHoverSpan);
+    bText.appendChild(span);
+};
+
 
 const handelBut = () => { 
     const fInpVal = firInp.value.trim();
     const sInpVal = secInp.value.trim();
+    const titleSecText = `Second Input:${'&nbsp;'}`;
+    const titleFirText = `First Input:${'&nbsp;'}`;
     const id = Math.floor(Math.random()*1000000000);
     if (fInpVal !== '' || sInpVal !== '') {
         let newText = null;
         if (fInpVal === '') {
             newText = document.createElement('div');
-            newText.innerHTML = `<p id=${id}><b>Second Input:</b> </p>`;
+            newText.innerHTML = `<p id=${id}></p>`;
             text.appendChild(newText);
-            // reorgStr(id, sInpVal);
-
+            rendTitleText(id, titleSecText);
             reorgStr(id, sInpVal);
         } else if (sInpVal === '') {
             newText = document.createElement('div');
-            newText.innerHTML = `<p id=${id}><b>First Input:</b> </p>`;
+            newText.innerHTML = `<p id=${id}></p>`;
             text.appendChild(newText);
+            rendTitleText(id, titleFirText);
             reorgStr(id, fInpVal);
         } else {
             newText = document.createElement('div');
             newText.innerHTML = `
-            <p id=${id}><b>First Input:</b> </p>
-            <p id=${id + 1234567}><b>Second Input:</b> </p>`;
+            <p id=${id}></p>
+            <p id=${id + 1234567}></p>`;
             text.appendChild(newText);
+            rendTitleText(id, titleFirText);
             reorgStr(id, fInpVal);
+            rendTitleText(id + 1234567, titleSecText);
             reorgStr(id + 1234567, sInpVal);
         };
     };
@@ -194,8 +208,7 @@ const handleMouseUp = (e) => {
         firstDraggedElements = [];
         secondDraggedElements = [];
         };
-        if (e.target.classList.contains('letter')) {
-
+        if (e.target.classList.contains('letter') || e.target.classList.contains('bold')) {
             selectedElements = selectedElements.reduce((arr, elem) => {
                 if (arr.length === 0) {
                     return [elem]
