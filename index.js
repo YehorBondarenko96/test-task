@@ -301,4 +301,3 @@ window.addEventListener('mouseup', handleMouseUp);
 
 textOne.addEventListener('mouseover', handelHoverSpan);
 textTwo.addEventListener('mouseover', handelHoverSpan);
-
