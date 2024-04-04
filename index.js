@@ -20,7 +20,6 @@ let finishSelAreaX = 0;
 let finishSelAreaY = 0;
 let finishedSelect = false;
 
-
 const reorgStr = (id, str) => {
     const pText = document.getElementById(`${id}`);
     const g = '&nbsp;';
@@ -34,17 +33,6 @@ const reorgStr = (id, str) => {
         pText.appendChild(span);
     });
 };
-
-// const rendTitleText = (id, str) => {
-//     const bText = document.getElementById(`${id}`);
-//     const span = document.createElement('span');
-//     span.setAttribute('id', `${Math.floor(Math.random() * 1000000000000)}`);
-//     span.classList.add('bold');
-//     span.innerHTML = `${str}`;
-//     span.addEventListener('mouseover', handelHoverSpan);
-//     bText.appendChild(span);
-// };
-
 
 const handelBut = () => { 
     const fInpVal = firInp.value.trim();
@@ -93,8 +81,6 @@ window.addEventListener('keyup', e => {
 });
 
 const handleMouseDown = (e) => {
-        console.log('finishSelAreaY: ', finishSelAreaY);
-
     isMouseDown = true;
     const allLetters = document.querySelectorAll('.letter');
     if (e.target.classList.contains('letter')) {
@@ -137,9 +123,7 @@ const handleMouseDown = (e) => {
         if (secondDraggedElements.length > 0) {
             lastMDownY = e.clientY;
             if (startSelAreaY >= finishSelAreaY) {
-            console.log(e.clientY);
-        upperBordSel = finishSelAreaY
-        console.log('finishSelAreaY: ', finishSelAreaY);
+                upperBordSel = finishSelAreaY;
     } else {
         upperBordSel = startSelAreaY
     }
@@ -222,7 +206,7 @@ const handleMouseUp = (e) => {
         firstDraggedElements = [];
         secondDraggedElements = [];
         };
-        if (e.target.classList.contains('letter') || e.target.classList.contains('bold')) {
+        if (e.target.classList.contains('letter') || e.target.classList.contains('one-of-the-text')) {
             selectedElements = selectedElements.reduce((arr, elem) => {
                 if (arr.length === 0) {
                     return [elem]
@@ -268,7 +252,11 @@ const rendNewSpan = () => {
 
         span.innerHTML = l === ' ' ? g : l;
         span.addEventListener('mouseover', handelHoverSpan);
-        actSp.after(span);
+        if (actSp.classList.contains('one-of-the-text')) {
+            actSp.appendChild(span);
+        } else {
+            actSp.after(span);
+        };
         const idOldEl = elem.el.id;
         const oldEl = document.getElementById(`${idOldEl}`);
         oldEl.remove();
@@ -310,4 +298,7 @@ const addNewEl = (elem, draggedElements) => {
 window.addEventListener('mousedown', handleMouseDown);
 window.addEventListener('mousemove', handleMouseMove);
 window.addEventListener('mouseup', handleMouseUp);
+
+textOne.addEventListener('mouseover', handelHoverSpan);
+textTwo.addEventListener('mouseover', handelHoverSpan);
 
