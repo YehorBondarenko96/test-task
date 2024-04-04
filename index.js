@@ -141,7 +141,6 @@ const handleMouseMove = (e) => {
     if (isMouseDown && !finishedSelect) { 
         finishSelAreaX = e.clientX;
         finishSelAreaY = e.clientY;
-        console.log('finishSelAreaY: ', finishSelAreaY);
 
         const allLetters = document.querySelectorAll('.letter');
         allLetters.forEach(elem => {
@@ -168,9 +167,11 @@ const handleMouseMove = (e) => {
             });
                 };
             } else {
-                elem.classList.remove('selected');
-                elem.classList.remove('dragging');
-                draggedElements = draggedElements.filter(el => el.el !== elem);
+                if (!isCtrlPress) {
+                    elem.classList.remove('selected');
+                    elem.classList.remove('dragging');
+                    draggedElements = draggedElements.filter(el => el.el !== elem);
+                }
             };
         selectedElements = [...draggedElements];
             
