@@ -11,6 +11,8 @@ let secondDraggedElements = [];
 let selectedElements = [];
 let isMouseDown = false;
 let lastActSp = null;
+let lastMDownY = 0;
+let upperBordSel = 0;
 let startSelAreaX = 0;
 let startSelAreaY = 0;
 let finishSelAreaX = 0;
@@ -135,7 +137,7 @@ const handleMouseDown = (e) => {
             
             noDrSelEl.forEach(l => l.classList.remove('selected'));
         };
-
+    lastMDownY = e.clientY;
     } else {
         if (!isCtrlPress) {
             allLetters.forEach(l => l.classList.remove('dragging'));
@@ -144,25 +146,35 @@ const handleMouseDown = (e) => {
         selectedElements = [];
         };
         finishedSelect = false;
+        startSelAreaX = e.clientX;
+        startSelAreaY = e.clientY;
     };
-    startSelAreaX = e.clientX;
-    startSelAreaY = e.clientY;
-    
 };
 
 const handleMouseMove = (e) => {
+    finishSelAreaX = e.clientX;
+    finishSelAreaY = e.clientY;
+    if (!isMouseDown) {
+        if (startSelAreaY >= finishSelAreaY) {
+        upperBordSel = finishSelAreaY
+    } else {
+        upperBordSel = startSelAreaY
+    }
+    };
+    
     if (isMouseDown && selectedElements.length > 0 && !isCtrlPress && finishedSelect) {
+        console.log(upperBordSel);
+        console.log(lastMDownY);
         selectedElements.forEach(elem => {
             const deltaX = e.clientX - elem.relDispX + elem.translateX - elem.startSelectionX;
-            const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY + 20;
+            const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY + 20 + (lastMDownY - upperBordSel);
             elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             elem.el.style.pointerEvents = 'none';
         });
     };
 
     if (isMouseDown && !finishedSelect) { 
-        finishSelAreaX = e.clientX;
-        finishSelAreaY = e.clientY;
+        
 
         const allLetters = document.querySelectorAll('.letter');
         allLetters.forEach(elem => {
