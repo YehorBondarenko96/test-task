@@ -35,22 +35,20 @@ const reorgStr = (id, str) => {
     });
 };
 
-const rendTitleText = (id, str) => {
-    const bText = document.getElementById(`${id}`);
-    const span = document.createElement('span');
-    span.setAttribute('id', `${Math.floor(Math.random() * 1000000000000)}`);
-    span.classList.add('bold');
-    span.innerHTML = `${str}`;
-    span.addEventListener('mouseover', handelHoverSpan);
-    bText.appendChild(span);
-};
+// const rendTitleText = (id, str) => {
+//     const bText = document.getElementById(`${id}`);
+//     const span = document.createElement('span');
+//     span.setAttribute('id', `${Math.floor(Math.random() * 1000000000000)}`);
+//     span.classList.add('bold');
+//     span.innerHTML = `${str}`;
+//     span.addEventListener('mouseover', handelHoverSpan);
+//     bText.appendChild(span);
+// };
 
 
 const handelBut = () => { 
     const fInpVal = firInp.value.trim();
     const sInpVal = secInp.value.trim();
-    const titleFirText = `Text 1:${'&nbsp;'}`;
-    const titleSecText = `Text 2:${'&nbsp;'}`;
     const id = Math.floor(Math.random()*1000000000);
     if (fInpVal !== '' || sInpVal !== '') {
         let newText = null;
@@ -95,6 +93,8 @@ window.addEventListener('keyup', e => {
 });
 
 const handleMouseDown = (e) => {
+        console.log('finishSelAreaY: ', finishSelAreaY);
+
     isMouseDown = true;
     const allLetters = document.querySelectorAll('.letter');
     if (e.target.classList.contains('letter')) {
@@ -126,8 +126,6 @@ const handleMouseDown = (e) => {
             elem.relDispY = e.clientY - elem.startSelectionY;
         });
 
-        selectedElements = [...firstDraggedElements, ...secondDraggedElements];
-
     const allSelLet = Array.from(document.querySelectorAll('.selected'));
 
         if (allSelLet.length > 0) {
@@ -135,7 +133,24 @@ const handleMouseDown = (e) => {
             
             noDrSelEl.forEach(l => l.classList.remove('selected'));
         };
-    lastMDownY = e.clientY;
+    
+        if (secondDraggedElements.length > 0) {
+            lastMDownY = e.clientY;
+            if (startSelAreaY >= finishSelAreaY) {
+            console.log(e.clientY);
+        upperBordSel = finishSelAreaY
+        console.log('finishSelAreaY: ', finishSelAreaY);
+    } else {
+        upperBordSel = startSelAreaY
+    }
+        }
+        else {
+            lastMDownY = 0;
+            upperBordSel = 0;
+        }
+
+        selectedElements = [...firstDraggedElements, ...secondDraggedElements];
+
     } else {
         if (!isCtrlPress) {
             allLetters.forEach(l => l.classList.remove('dragging'));
@@ -150,29 +165,18 @@ const handleMouseDown = (e) => {
 };
 
 const handleMouseMove = (e) => {
-    finishSelAreaX = e.clientX;
-    finishSelAreaY = e.clientY;
-    if (!isMouseDown) {
-        if (startSelAreaY >= finishSelAreaY) {
-        upperBordSel = finishSelAreaY
-    } else {
-        upperBordSel = startSelAreaY
-    }
-    };
-    
     if (isMouseDown && selectedElements.length > 0 && !isCtrlPress && finishedSelect) {
-        console.log(upperBordSel);
-        console.log(lastMDownY);
         selectedElements.forEach(elem => {
             const deltaX = e.clientX - elem.relDispX + elem.translateX - elem.startSelectionX;
-            const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY + 20;
+            const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY + 20 + (lastMDownY - upperBordSel);
             elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             elem.el.style.pointerEvents = 'none';
         });
     };
 
     if (isMouseDown && !finishedSelect) { 
-        
+        finishSelAreaX = e.clientX;
+        finishSelAreaY = e.clientY;
 
         const allLetters = document.querySelectorAll('.letter');
         allLetters.forEach(elem => {
