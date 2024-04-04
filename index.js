@@ -1,7 +1,8 @@
 const firInp = document.querySelector('.firstInput');
 const secInp = document.querySelector('.secondInput');
 const button = document.querySelector('.button');
-const text = document.querySelector('.text');
+const textOne = document.querySelector('.text-one');
+const textTwo = document.querySelector('.text-two');
 
 let isCtrlPress = false;
 let startSelectionX = 0;
@@ -48,32 +49,29 @@ const rendTitleText = (id, str) => {
 const handelBut = () => { 
     const fInpVal = firInp.value.trim();
     const sInpVal = secInp.value.trim();
-    const titleSecText = `Second Input:${'&nbsp;'}`;
-    const titleFirText = `First Input:${'&nbsp;'}`;
+    const titleFirText = `Text 1:${'&nbsp;'}`;
+    const titleSecText = `Text 2:${'&nbsp;'}`;
     const id = Math.floor(Math.random()*1000000000);
     if (fInpVal !== '' || sInpVal !== '') {
         let newText = null;
         if (fInpVal === '') {
             newText = document.createElement('div');
             newText.innerHTML = `<p id=${id}></p>`;
-            text.appendChild(newText);
-            rendTitleText(id, titleSecText);
+            textTwo.appendChild(newText);
             reorgStr(id, sInpVal);
         } else if (sInpVal === '') {
             newText = document.createElement('div');
             newText.innerHTML = `<p id=${id}></p>`;
-            text.appendChild(newText);
-            rendTitleText(id, titleFirText);
+            textOne.appendChild(newText);
             reorgStr(id, fInpVal);
         } else {
             newText = document.createElement('div');
-            newText.innerHTML = `
-            <p id=${id}></p>
-            <p id=${id + 1234567}></p>`;
-            text.appendChild(newText);
-            rendTitleText(id, titleFirText);
+            newText.innerHTML = `<p id=${id}></p>`;
+            textOne.appendChild(newText);
             reorgStr(id, fInpVal);
-            rendTitleText(id + 1234567, titleSecText);
+            newText = document.createElement('div');
+            newText.innerHTML = `<p id=${id + 1234567}></p>`;
+            textTwo.appendChild(newText);
             reorgStr(id + 1234567, sInpVal);
         };
     };
@@ -167,7 +165,7 @@ const handleMouseMove = (e) => {
         console.log(lastMDownY);
         selectedElements.forEach(elem => {
             const deltaX = e.clientX - elem.relDispX + elem.translateX - elem.startSelectionX;
-            const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY + 20 + (lastMDownY - upperBordSel);
+            const deltaY = e.clientY - elem.relDispY + elem.translateY - elem.startSelectionY + 20;
             elem.el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
             elem.el.style.pointerEvents = 'none';
         });
