@@ -121,7 +121,7 @@ const handleMouseDown = (e) => {
         };
     
         if (secondDraggedElements.length > 0) {
-            lastMDownY = e.clientY;
+            lastMDownY = e.clientY - 20;
             if (startSelAreaY >= finishSelAreaY) {
                 upperBordSel = finishSelAreaY;
     } else {
